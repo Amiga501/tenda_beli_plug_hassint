@@ -1025,13 +1025,16 @@ class TendaBeliServer:
 
         # Find the starting position of actual device data by looking for serial number pattern
         start_offset = 0
-        serial_pattern = re.compile(r'^E\d{16}$')
+        serial_patterns = [re.compile(r'^E\d{16}$'),
+                           re.compile(r'^EB\d{15}$'),
+                           ]
         
         for i, text in enumerate(parts):
-            if serial_pattern.match(text):
-                start_offset = i
-                _LOGGER.debug(f"Found serial number at position {i}: {text}")
-                break
+            for serial_pattern in serial_patterns:
+                if serial_pattern.match(text):
+                    start_offset = i
+                    _LOGGER.debug(f"Found serial number at position {i}: {text}")
+                    break
         
         if start_offset == 0 and len(parts) > 0 and not serial_pattern.match(parts[0]):
             _LOGGER.warning("Serial number pattern not found, using default positions")
